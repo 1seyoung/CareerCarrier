@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+#Eureka 설정
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30  # 갱신 주기 설정 (기본값은 30초)
+
+spring:
+  config:
+    activate:
+      on-profile: docker
+  application:
+    name: api-gateway
+
+
+  # Cloud Gateway 설정
+  # Cloud Gateway 기본 설정
+  cloud:
+    gateway:
+      routes:
+        - id: member-service
+          uri: lb://member-service
+          predicates:
+            - Path=/api/**  # 기본 경로 설정
+          filters:
+            - StripPrefix=1
+
+
+      default-filters:
+        - name : GlobalFilter
+          args :
+            baseMessage: "Spring Cloud Gateway Global Filter"
+            preLogger: true
+            postLogger: true
+
